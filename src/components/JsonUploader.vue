@@ -1,124 +1,90 @@
 <template>
-    <div class="json-uploader">
-        <div class="upload-area">
-            <!-- 文件上传区域 -->
-            <el-upload class="json-upload" action="" :auto-upload="false" :show-file-list="false" accept=".json"
-                :on-change="handleFileChange">
-                <template #trigger>
-                    <el-button type="primary">选择 JSON 文件</el-button>
-                </template>
-            </el-upload>
-
-            <!-- 预览控制按钮 -->
-            <el-button v-if="jsonContent" type="info" :icon="isPreviewVisible ? 'CaretTop' : 'CaretBottom'"
-                @click="togglePreview">
-                {{ isPreviewVisible ? '收起预览' : '展开预览' }}
-            </el-button>
+  <div class="json-uploader">
+    <el-upload
+      class="upload-area"
+      drag
+      action=""
+      :auto-upload="false"
+      :show-file-list="false"
+      accept=".json"
+      :on-change="handleFileChange"
+    >
+      <el-icon class="upload-icon"><Upload /></el-icon>
+      <div class="upload-text">
+        <span class="text-primary">点击上传</span> 或将文件拖拽到此处
+      </div>
+      <template #tip>
+        <div class="upload-tip">
+          仅支持 .json 格式文件
         </div>
-
-        <!-- 错误提示 -->
-        <el-alert v-if="errorMessage" :title="errorMessage" type="error" show-icon class="error-message" />
-
-        <!-- 显示 JSON 内容 -->
-        <div v-if="jsonContent && isPreviewVisible" class="json-content">
-            <el-collapse-transition>
-                <div class="preview-content">
-                    <pre>{{ JSON.stringify(jsonContent, null, 2) }}</pre>
-                </div>
-            </el-collapse-transition>
-        </div>
-    </div>
+      </template>
+    </el-upload>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, defineProps, defineEmits } from 'vue'
+import { defineEmits } from 'vue'
+import { Upload } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
-const props = defineProps({
-    showPreview: {
-        type: Boolean,
-        default: false
-    }
-})
+const emit = defineEmits(['file-selected'])
 
-const emit = defineEmits(['update:jsonData', 'update:showPreview'])
-
-const jsonContent = ref(null)
-const errorMessage = ref('')
-const isPreviewVisible = computed({
-    get: () => props.showPreview,
-    set: (value) => emit('update:showPreview', value)
-})
-
-// 切换预览显示状态
-const togglePreview = () => {
-    isPreviewVisible.value = !isPreviewVisible.value
-}
-
+// Handle file change
 const handleFileChange = (file) => {
-    const reader = new FileReader()
-
-    reader.onload = (e) => {
-        try {
-            // 解析 JSON 内容
-            const content = JSON.parse(e.target.result)
-            jsonContent.value = content
-            errorMessage.value = ''
-
-            // 向父组件发送解析后的数据
-            emit('update:jsonData', content)
-        } catch (error) {
-            errorMessage.value = '无效的 JSON 文件格式'
-            jsonContent.value = null
-            emit('update:jsonData', null)
-        }
-    }
-
-    reader.onerror = () => {
-        errorMessage.value = '文件读取失败'
-        jsonContent.value = null
-        emit('update:jsonData', null)
-    }
-
-    // 开始读取文件
-    reader.readAsText(file.raw)
+  if (!file) return
+  
+  // Validate file type
+  if (!file.raw.type && !file.raw.name.endsWith('.json')) {
+    ElMessage.error('请上传 JSON 格式文件')
+    return
+  }
+  
+  emit('file-selected', file.raw)
 }
 </script>
 
 <style scoped>
 .json-uploader {
-    padding: 20px;
+  width: 100%;
 }
 
 .upload-area {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+  width: 100%;
 }
 
-.json-content {
-    margin-top: 20px;
-    overflow: hidden;
+:deep(.el-upload) {
+  width: 100%;
 }
 
-.preview-content {
-    padding: 15px;
-    background-color: #f5f7fa;
-    border-radius: 4px;
-    border: 1px solid #e4e7ed;
+:deep(.el-upload-dragger) {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-base);
 }
 
-.error-message {
-    margin-top: 10px;
+.upload-icon {
+  font-size: 48px;
+  color: var(--el-text-color-secondary);
 }
 
-pre {
-    margin: 0;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+.upload-text {
+  color: var(--el-text-color-regular);
+  font-size: 14px;
+  text-align: center;
 }
 
-/* 添加过渡动画 */
-.el-collapse-transition {
-    transition: 0.3s height ease-in-out, 0.3s padding-top ease-in-out, 0.3s padding-bottom ease-in-out;
+.text-primary {
+  color: var(--el-color-primary);
+}
+
+.upload-tip {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  margin-top: var(--spacing-small);
+  text-align: center;
 }
 </style>

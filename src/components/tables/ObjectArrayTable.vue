@@ -1,10 +1,11 @@
 <template>
-  <div class="table-reset input-reset">
+  <div class="table-wrapper">
     <el-table 
-      :data="data" 
+      :data="tableData" 
       size="small"
       border
       style="width: 100%"
+      :fit="false"
     >
       <el-table-column 
         type="index" 
@@ -14,30 +15,18 @@
         fixed="left"
       />
       <el-table-column 
-        v-for="col in columns" 
+        v-for="col in tableColumns" 
         :key="col"
         :prop="col"
         :label="col"
         :min-width="getColumnWidth(col)"
+        show-overflow-tooltip
       >
-        <template #header="{ column }">
-          <div class="column-header">
-            {{ column.label }}
-            <el-tooltip 
-              v-if="getColumnType(col) === 'complex'"
-              content="点击单元格编辑详细内容"
-              placement="top"
-            >
-              <el-icon class="info-icon"><InfoFilled /></el-icon>
-            </el-tooltip>
-          </div>
-        </template>
-        
-        <template #default="{ row, $index }">
+        <template #default="scope">
           <value-editor
-            :value="row[col]"
-            @update:value="handleUpdate($index, col, $event)"
-            @edit="handleEdit($index, col, row[col])"
+            :value="scope.row[col]"
+            @update:value="(val) => handleUpdate(scope.$index, col, val)"
+            @edit="() => handleEdit(scope.$index, col, scope.row[col])"
           />
         </template>
       </el-table-column>
@@ -47,12 +36,12 @@
         align="center"
         fixed="right"
       >
-        <template #default="{ $index }">
+        <template #default="scope">
           <el-button 
             type="danger" 
             link 
             size="small" 
-            @click="emit('remove', $index)"
+            @click="handleRemove(scope.$index)"
           >
             <el-icon><Delete /></el-icon>
           </el-button>
@@ -63,10 +52,9 @@
 </template>
 
 <script setup>
-import { computed, defineProps, defineEmits } from 'vue'
-import { Delete, InfoFilled } from '@element-plus/icons-vue'
+import {computed, defineProps, defineEmits } from 'vue'
+import { Delete } from '@element-plus/icons-vue'
 import ValueEditor from '../editors/ValueEditor.vue'
-import { isComplexValue } from '../../utils/typeUtils'
 
 const props = defineProps({
   data: {
@@ -77,45 +65,35 @@ const props = defineProps({
 
 const emit = defineEmits(['update', 'remove', 'edit-complex'])
 
-const columns = computed(() => {
-  const cols = new Set()
-  props.data.forEach(item => {
-    if (typeof item === 'object' && item !== null) {
-      Object.keys(item).forEach(key => cols.add(key))
-    }
-  })
-  return Array.from(cols)
+const tableData = computed(() => props.data)
+
+
+// 表格列配置
+const tableColumns = computed(() => {
+  if (!props.data.length) return []
+  const firstRow = props.data[0]
+  return Object.keys(firstRow || {})
 })
 
-// 获取列的类型
-const getColumnType = (col) => {
-  const firstRow = props.data[0]
-  if (!firstRow) return 'simple'
-  const value = firstRow[col]
-  if (isComplexValue(value)) return 'complex'
-  if (typeof value === 'boolean') return 'boolean'
-  if (typeof value === 'number') return 'number'
-  return 'string'
-}
-
-// 获取列宽度
 const getColumnWidth = (col) => {
-  const type = getColumnType(col)
-  switch (type) {
-    case 'boolean':
-      return 80
-    case 'number':
-      return 100
-    case 'complex':
-      return 120
-    default:
-      return 150
-  }
+  if (!props.data.length) return 150
+  const value = props.data[0][col]
+  
+  if (typeof value === 'boolean') return 80
+  if (typeof value === 'number') return 100
+  if (Array.isArray(value)) return 150
+  if (typeof value === 'object' && value !== null) return 150
+  
+  return 150
 }
 
 const handleUpdate = (index, key, value) => {
   const newRow = { ...props.data[index], [key]: value }
   emit('update', index, newRow)
+}
+
+const handleRemove = (index) => {
+  emit('remove', index)
 }
 
 const handleEdit = (index, key, value) => {
@@ -124,14 +102,40 @@ const handleEdit = (index, key, value) => {
 </script>
 
 <style scoped>
-.column-header {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
 }
 
-.info-icon {
-  font-size: 14px;
-  color: var(--el-color-info);
+:deep(.el-table) {
+  width: auto !important;
+  min-width: 100%;
+}
+
+:deep(.el-table__header th) {
+  font-weight: 600;
+  background-color: var(--el-fill-color-light);
+  white-space: nowrap;
+}
+
+:deep(.el-table__body td) {
+  white-space: nowrap;
+}
+
+:deep(.el-table__header .cell) {
+  font-weight: 600;
+}
+
+:deep(.el-table-column--selection .cell) {
+  padding: 0 14px;
+}
+
+:deep(.el-button) {
+  padding: 2px 0;
+}
+
+:deep(.el-input), :deep(.el-input-number) {
+  width: auto;
+  min-width: 120px;
 }
 </style> 

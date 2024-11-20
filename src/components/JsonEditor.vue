@@ -1,75 +1,58 @@
 <template>
   <div class="json-editor">
-    <!-- 顶部操作栏 -->
-    <div class="editor-header">
-      <div class="header-left">
-        <el-tag size="small" type="info">JSON编辑器</el-tag>
-      </div>
-      <div class="header-right">
-        <el-button 
-          type="primary"
-          size="small"
-          @click="handleExport"
-        >
-          <el-icon class="mr-1"><Download /></el-icon>
-          导出
-        </el-button>
-      </div>
-    </div>
-
     <!-- 编辑器内容 -->
     <div class="editor-content">
       <div class="content-wrapper">
-        <template v-for="(value, key) in modelValue" :key="key">
-          <div class="field-row">
-            <!-- 字段标签 -->
-            <div class="field-label">
-              <span class="label-text">{{ key }}</span>
-              <el-tag size="small" effect="plain" class="label-type">
-                {{ getValueType(value) }}
-              </el-tag>
-            </div>
-            
-            <!-- 字段值 -->
-            <div class="field-value">
-              <div v-if="Array.isArray(value)" class="value-wrapper full-width">
-                <json-array-editor
-                  v-model="localValue[key]"
-                  @update:model-value="handleUpdate(key, $event)"
-                />
-              </div>
+        <div 
+          v-for="(value, key) in modelValue" 
+          :key="key"
+          class="field-row"
+        >
+          <!-- 字段标签 -->
+          <div class="field-label">
+            <span class="label-text">{{ key }}</span>
+            <el-tag size="small" effect="plain" class="label-type">
+              {{ getValueType(value) }}
+            </el-tag>
+          </div>
+          
+          <!-- 字段值 -->
+          <div class="field-value">
+            <div class="value-wrapper" :class="{ 'full-width': isComplexValue(value) }">
+              <json-array-editor
+                v-if="Array.isArray(value)"
+                v-model="localValue[key]"
+                @update:model-value="handleUpdate(key, $event)"
+                :path="[...currentPath, key]"
+              />
               
-              <div v-else-if="isObject(value)" class="value-wrapper full-width">
-                <json-editor
-                  v-model="localValue[key]"
-                  @update:model-value="handleUpdate(key, $event)"
-                />
-              </div>
+              <json-editor
+                v-else-if="isObject(value)"
+                v-model="localValue[key]"
+                @update:model-value="handleUpdate(key, $event)"
+                :path="[...currentPath, key]"
+              />
               
-              <div v-else class="value-wrapper">
-                <value-editor
-                  :value="value"
-                  @update:value="handleUpdate(key, $event)"
-                />
-              </div>
+              <value-editor
+                v-else
+                :value="value"
+                @update:value="handleUpdate(key, $event)"
+                :path="[...currentPath, key]"
+              />
             </div>
           </div>
-        </template>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue'
-import { Download } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, defineProps, defineEmits } from 'vue'
 import JsonArrayEditor from './JsonArrayEditor.vue'
 import ValueEditor from './editors/ValueEditor.vue'
 import { getValueType } from '../utils/typeUtils'
-import { generateFilename } from '../utils/dateUtils'
 
-// Props
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -78,60 +61,33 @@ const props = defineProps({
   filename: {
     type: String,
     default: 'data.json'
+  },
+  path: {
+    type: Array,
+    default: () => []
   }
 })
 
-// Emits
 const emit = defineEmits(['update:modelValue'])
 
-// Local state
 const localValue = ref({ ...props.modelValue })
+const currentPath = computed(() => props.path || [])
 
-// Watch for external changes
-watch(() => props.modelValue, (newVal) => {
-  localValue.value = { ...newVal }
-}, { deep: true })
-
-// Handle value updates
-const handleUpdate = (key, value) => {
-  const newValue = { ...localValue.value, [key]: value }
-  localValue.value = newValue
-  emit('update:modelValue', newValue)
+// 判断是否为复杂值
+const isComplexValue = (value) => {
+  return typeof value === 'object' && value !== null
 }
 
-// Check if value is object (not array)
+// 判断是否为对象（非数组）
 const isObject = (value) => {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-// Handle export
-const handleExport = () => {
-  try {
-    // Convert data to formatted JSON string
-    const jsonString = JSON.stringify(localValue.value, null, 2)
-    
-    // Create blob with JSON data
-    const blob = new Blob([jsonString], { type: 'application/json' })
-    
-    // Generate filename with timestamp
-    const filename = generateFilename(props.filename)
-    
-    // Create and trigger download link
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = filename
-    
-    // Append, click and cleanup
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(link.href)
-    
-    ElMessage.success('导出成功')
-  } catch (error) {
-    console.error('Export error:', error)
-    ElMessage.error('导出失败')
-  }
+// 处理值更新
+const handleUpdate = (key, value) => {
+  const newValue = { ...localValue.value, [key]: value }
+  localValue.value = newValue
+  emit('update:modelValue', newValue)
 }
 </script>
 
@@ -145,7 +101,6 @@ const handleExport = () => {
   border-radius: var(--radius-base);
 }
 
-/* 顶部操作栏样式 */
 .editor-header {
   display: flex;
   justify-content: space-between;
@@ -155,7 +110,21 @@ const handleExport = () => {
   border-bottom: 1px solid var(--border-light);
 }
 
-/* 内容区域样式 */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+}
+
+.filename-label {
+  color: var(--text-regular);
+  font-size: 14px;
+}
+
+.filename-tag {
+  font-weight: 500;
+}
+
 .editor-content {
   padding: var(--spacing-base);
 }
@@ -166,7 +135,6 @@ const handleExport = () => {
   gap: var(--spacing-base);
 }
 
-/* 字段行样式 */
 .field-row {
   display: flex;
   gap: var(--spacing-large);
@@ -174,7 +142,6 @@ const handleExport = () => {
   width: 100%;
 }
 
-/* 标签样式 */
 .field-label {
   display: flex;
   align-items: center;
@@ -192,27 +159,23 @@ const handleExport = () => {
   flex-shrink: 0;
 }
 
-/* 值区域样式 */
 .field-value {
   flex: 1;
   min-width: 0;
-  display: flex;
 }
 
 .value-wrapper {
+  max-width: 100%;
+}
+
+.value-wrapper.full-width {
   flex: 1;
 }
 
-.value-wrapper:not(.full-width) {
-  max-width: 300px;
-}
-
-/* 图标间距 */
 .mr-1 {
   margin-right: 4px;
 }
 
-/* 嵌套编辑器样式 */
 .nested-editor {
   width: 100%;
   background-color: var(--bg-light);
@@ -220,17 +183,24 @@ const handleExport = () => {
   margin-top: var(--spacing-small);
 }
 
-/* 隐藏嵌套编辑器的导出按钮 */
 :deep(.json-editor .editor-header) {
   display: none;
 }
 
-/* 输入框样式调整 */
 :deep(.el-input-number) {
   width: 120px;
 }
 
 :deep(.el-switch) {
   margin-left: var(--spacing-small);
+}
+
+:deep(.el-table__header th) {
+  font-weight: 600;
+  background-color: var(--el-fill-color-light);
+}
+
+:deep(.el-table__header .cell) {
+  font-weight: 600;
 }
 </style> 
