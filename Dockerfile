@@ -1,5 +1,5 @@
 # 使用最小化的 Node.js 基础镜像
-FROM node:alpine AS build
+FROM node:22-alpine3.20 AS build
 
 # 设置工作目录
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # 使用 Nginx 作为生产环境的服务器
-FROM nginx:alpine
+FROM nginx:1.26.2-alpine3.20-perl
 
 # 复制构建的文件到 Nginx 的默认静态文件目录
 COPY --from=build /app/dist /usr/share/nginx/html
