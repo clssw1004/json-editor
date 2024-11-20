@@ -14,6 +14,8 @@
 
 <script setup>
 import { computed, defineProps, defineEmits } from 'vue'
+import { useI18n } from 'vue-i18n'
+
 
 const props = defineProps({
   value: {
@@ -25,7 +27,7 @@ const props = defineProps({
 const emit = defineEmits(['edit'])
 
 const valueType = computed(() => {
-  return Array.isArray(props.value) ? '数组' : '对象'
+  return Array.isArray(props.value) ? `${t('types.array')}` : `${t('types.object')}`
 })
 
 const valueCount = computed(() => {
@@ -38,6 +40,7 @@ const valueCount = computed(() => {
 const handleEdit = () => {
   emit('edit')
 }
+const { t } = useI18n()
 </script>
 
 <style scoped>

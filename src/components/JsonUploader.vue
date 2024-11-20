@@ -11,11 +11,12 @@
     >
       <el-icon class="upload-icon"><Upload /></el-icon>
       <div class="upload-text">
-        <span class="text-primary">点击上传</span> 或将文件拖拽到此处
+        <span class="text-primary">{{ t('upload.clickToUpload') }}</span> 
+        {{ t('upload.dragHere') }}
       </div>
       <template #tip>
         <div class="upload-tip">
-          仅支持 .json 格式文件
+          {{ t('upload.onlyJson') }}
         </div>
       </template>
     </el-upload>
@@ -26,16 +27,16 @@
 import { defineEmits } from 'vue'
 import { Upload } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const emit = defineEmits(['file-selected'])
 
-// Handle file change
 const handleFileChange = (file) => {
   if (!file) return
   
-  // Validate file type
   if (!file.raw.type && !file.raw.name.endsWith('.json')) {
-    ElMessage.error('请上传 JSON 格式文件')
+    ElMessage.error(t('upload.uploadError'))
     return
   }
   

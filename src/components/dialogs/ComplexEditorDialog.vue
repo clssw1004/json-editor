@@ -12,7 +12,7 @@
     >
       <div class="path-display">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item>root</el-breadcrumb-item>
+          <el-breadcrumb-item>{{ t('editor.root') }}</el-breadcrumb-item>
           <el-breadcrumb-item 
             v-for="(item, index) in path" 
             :key="index"
@@ -55,6 +55,7 @@
 import { ref, watch, computed, defineProps, defineEmits } from 'vue'
 import JsonEditor from '../JsonEditor.vue'
 import JsonArrayEditor from '../JsonArrayEditor.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   visible: Boolean,
@@ -93,6 +94,8 @@ const dialogTitle = computed(() => {
   const pathStr = props.path.length > 0 ? ` (${props.path.join('.')})` : ''
   return `${props.title}${pathStr}`
 })
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

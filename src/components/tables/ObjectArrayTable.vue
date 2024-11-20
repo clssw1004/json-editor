@@ -4,23 +4,21 @@
       :data="tableData" 
       size="small"
       border
-      style="width: 100%"
-      :fit="false"
+      :fit="true"
     >
       <el-table-column 
         type="index" 
         label="#" 
         width="50" 
         align="center"
-        fixed="left"
       />
+      
       <el-table-column 
         v-for="col in tableColumns" 
         :key="col"
         :prop="col"
         :label="col"
-        :min-width="getColumnWidth(col)"
-        show-overflow-tooltip
+        :min-width="120"
       >
         <template #default="scope">
           <value-editor
@@ -30,11 +28,11 @@
           />
         </template>
       </el-table-column>
+
       <el-table-column 
-        label="操作" 
+        :label="t('common.operation')"
         width="80" 
         align="center"
-        fixed="right"
       >
         <template #default="scope">
           <el-button 
@@ -52,9 +50,12 @@
 </template>
 
 <script setup>
-import {computed, defineProps, defineEmits } from 'vue'
+import { computed, defineProps, defineEmits } from 'vue'
 import { Delete } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 import ValueEditor from '../editors/ValueEditor.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   data: {
@@ -75,17 +76,6 @@ const tableColumns = computed(() => {
   return Object.keys(firstRow || {})
 })
 
-const getColumnWidth = (col) => {
-  if (!props.data.length) return 150
-  const value = props.data[0][col]
-  
-  if (typeof value === 'boolean') return 80
-  if (typeof value === 'number') return 100
-  if (Array.isArray(value)) return 150
-  if (typeof value === 'object' && value !== null) return 150
-  
-  return 150
-}
 
 const handleUpdate = (index, key, value) => {
   const newRow = { ...props.data[index], [key]: value }

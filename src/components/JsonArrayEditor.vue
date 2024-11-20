@@ -2,7 +2,7 @@
   <div class="json-array-editor">
     <div class="array-header">
       <div class="header-left">
-        <el-tag size="small" type="info">{{ modelValue.length }} 项</el-tag>
+        <el-tag size="small" type="info">{{ modelValue.length }} {{ t('editor.items') }}</el-tag>
         <span class="array-type">{{ arrayTypeText }}</span>
       </div>
       <el-button 
@@ -11,13 +11,13 @@
         size="small"
         @click="handleAdd"
       >
-        <el-icon><Plus /></el-icon>添加
+        <el-icon><Plus /></el-icon>{{ t('common.add') }}
       </el-button>
     </div>
     
     <div class="array-content">
       <div v-if="modelValue.length === 0" class="empty-tip">
-        暂无数据
+        {{ t('messages.noDataAvailable') }}
       </div>
       
       <div v-else class="table-container">
@@ -55,6 +55,7 @@ import { Plus } from '@element-plus/icons-vue'
 import SimpleArrayTable from './tables/SimpleArrayTable.vue'
 import ObjectArrayTable from './tables/ObjectArrayTable.vue'
 import ComplexEditorDialog from './dialogs/ComplexEditorDialog.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   modelValue: {
@@ -86,12 +87,12 @@ const isSimpleArray = computed(() => {
 
 // 获取数组类型描述
 const arrayTypeText = computed(() => {
-  if (!props.modelValue.length) return '空数组'
+  if (!props.modelValue.length) return t('editor.emptyArray')
   const firstItem = props.modelValue[0]
   if (typeof firstItem !== 'object' || firstItem === null) {
-    return `${typeof firstItem}[]`
+    return t('editor.arrayType', { type: t(`types.${typeof firstItem}`) })
   }
-  return '对象数组'
+  return t('editor.objectArray')
 })
 
 // 处理添加
@@ -149,7 +150,7 @@ const handleEditComplex = (index, key, value) => {
   currentEditValue.value = value
   currentEditIndex.value = index
   currentEditKey.value = key
-  dialogTitle.value = `编辑 ${key}`
+  dialogTitle.value = `${t('editor.edit')} ${key}`
   dialogPath.value = [...props.path, index, key]
   dialogVisible.value = true
 }
@@ -169,6 +170,8 @@ const handleDialogConfirm = (value) => {
   currentEditIndex.value = null
   currentEditKey.value = null
 }
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

@@ -3,12 +3,13 @@
     <!-- 顶部操作栏 -->
     <div class="view-header">
       <div class="header-left">
-        <span class="filename-label">当前文件：</span>
+        <span class="filename-label">{{ t('common.currentFile') }}：</span>
         <el-tag size="small" type="success" class="filename-tag">
-          {{ currentFilename || '未选择文件' }}y
+          {{ currentFilename || t('common.noFileSelected') }}
         </el-tag>
       </div>
       <div class="header-right">
+        <lang-switch />
         <el-button 
           type="primary" 
           plain
@@ -17,7 +18,7 @@
           :disabled="!jsonData"
         >
           <el-icon class="mr-1"><View /></el-icon>
-          预览
+          {{ t('common.preview') }}
         </el-button>
         <el-button 
           type="primary"
@@ -26,7 +27,7 @@
           :disabled="!jsonData"
         >
           <el-icon class="mr-1"><Download /></el-icon>
-          导出
+          {{ t('common.export') }}
         </el-button>
       </div>
     </div>
@@ -74,6 +75,12 @@ import { ElMessage } from 'element-plus'
 import JsonEditor from '../components/JsonEditor.vue'
 import JsonUploader from '../components/JsonUploader.vue'
 import { generateFilename } from '../utils/dateUtils'
+import { useI18n } from 'vue-i18n'
+import LangSwitch from '../components/LangSwitch.vue'
+
+const { t } = useI18n()
+
+console.log(t)
 
 // 状态管理
 const jsonData = ref(null)
@@ -128,7 +135,7 @@ const handleCopyJson = async () => {
 // 处理导出
 const handleExport = () => {
   if (!jsonData.value) {
-    ElMessage.warning('暂无数据可导出')
+    ElMessage.warning(t('messages.noData'))
     return
   }
 
@@ -145,10 +152,10 @@ const handleExport = () => {
     document.body.removeChild(link)
     URL.revokeObjectURL(link.href)
     
-    ElMessage.success('导出成功')
+    ElMessage.success(t('editor.exportSuccess'))
   } catch (error) {
     console.error('Export error:', error)
-    ElMessage.error('导出失败')
+    ElMessage.error(t('editor.exportError'))
   }
 }
 </script>
