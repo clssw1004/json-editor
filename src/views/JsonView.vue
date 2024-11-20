@@ -5,7 +5,7 @@
       <div class="header-left">
         <span class="filename-label">当前文件：</span>
         <el-tag size="small" type="success" class="filename-tag">
-          {{ currentFilename || '未选择文件' }}
+          {{ currentFilename || '未选择文件' }}y
         </el-tag>
       </div>
       <div class="header-right">
