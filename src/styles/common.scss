@@ -1,0 +1,179 @@
+// 变量定义
+:root {
+  // 颜色
+  --primary-color: #409eff;
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --info-color: #909399;
+  
+  // 文字颜色
+  --text-primary: #303133;
+  --text-regular: #606266;
+  --text-secondary: #909399;
+  
+  // 边框颜色
+  --border-color: #dcdfe6;
+  --border-light: #e4e7ed;
+  
+  // 背景颜色
+  --bg-white: #ffffff;
+  --bg-light: #f5f7fa;
+  
+  // 间距
+  --spacing-mini: 4px;
+  --spacing-small: 8px;
+  --spacing-base: 12px;
+  --spacing-large: 16px;
+  
+  // 圆角
+  --radius-small: 2px;
+  --radius-base: 4px;
+  --radius-large: 8px;
+  
+  // 阴影
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-base: 0 2px 12px rgba(0, 0, 0, 0.1);
+  
+  // 容器宽度
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+}
+
+// 通用布局类
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-mini { gap: var(--spacing-mini); }
+.gap-small { gap: var(--spacing-small); }
+.gap-base { gap: var(--spacing-base); }
+.gap-large { gap: var(--spacing-large); }
+
+// 边距类
+.m-mini { margin: var(--spacing-mini); }
+.m-small { margin: var(--spacing-small); }
+.m-base { margin: var(--spacing-base); }
+.m-large { margin: var(--spacing-large); }
+
+.mt-mini { margin-top: var(--spacing-mini); }
+.mt-small { margin-top: var(--spacing-small); }
+.mt-base { margin-top: var(--spacing-base); }
+.mt-large { margin-top: var(--spacing-large); }
+
+// 文本类
+.text-primary { color: var(--text-primary); }
+.text-regular { color: var(--text-regular); }
+.text-secondary { color: var(--text-secondary); }
+
+.font-bold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+.font-normal { font-weight: 400; }
+
+// 边框类
+.border {
+  border: 1px solid var(--border-color);
+}
+
+.border-light {
+  border: 1px solid var(--border-light);
+}
+
+.rounded-small { border-radius: var(--radius-small); }
+.rounded-base { border-radius: var(--radius-base); }
+.rounded-large { border-radius: var(--radius-large); }
+
+// 表格样式重置
+.table-reset {
+  :deep(.el-table) {
+    --el-table-header-bg-color: var(--bg-light);
+    --el-table-border-color: var(--border-light);
+    --el-table-header-text-color: var(--text-regular);
+    
+    .el-table__cell {
+      padding: var(--spacing-mini) var(--spacing-small);
+    }
+    
+    th.el-table__cell {
+      font-weight: 600;
+      background-color: #f5f7fa;
+    }
+    
+    .cell {
+      padding: 0 var(--spacing-small);
+    }
+  }
+}
+
+// 输入框样式重置
+.input-reset {
+  :deep(.el-input .el-input__wrapper) {
+    padding: 1px var(--spacing-small);
+  }
+  
+  :deep(.el-input-number .el-input__wrapper) {
+    padding: 1px 2px;
+  }
+}
+
+// 卡片样式重置
+.card-reset {
+  :deep(.el-card) {
+    border: 1px solid var(--border-light);
+    
+    .el-card__header {
+      padding: var(--spacing-base);
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .el-card__body {
+      padding: var(--spacing-base);
+    }
+  }
+}
+
+// 表单容器
+.form-container {
+  max-width: var(--container-md);
+  margin: 0 auto;
+  padding: var(--spacing-large);
+}
+
+// 表单卡片
+.form-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-base);
+  padding: var(--spacing-large);
+}
+
+// 表单分组
+.form-group {
+  border-left: 2px solid var(--primary-color);
+  padding-left: var(--spacing-base);
+  margin-bottom: var(--spacing-large);
+}
+
+// 表单标签
+.form-label {
+  font-size: 14px;
+  color: var(--text-regular);
+  margin-bottom: var(--spacing-small);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+} 
