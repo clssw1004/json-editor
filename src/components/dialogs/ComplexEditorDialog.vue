@@ -43,8 +43,8 @@
       
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="handleCancel">取消</el-button>
-          <el-button size="small" type="primary" @click="handleConfirm">确认</el-button>
+          <el-button size="small" @click="handleCancel">{{t("common.cancel")}}</el-button>
+          <el-button size="small" type="primary" @click="handleConfirm">{{t("common.confirm")}}</el-button>
         </div>
       </template>
     </el-dialog>

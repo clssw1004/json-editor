@@ -10,7 +10,7 @@ export default {
     remove: '删除',
     confirm: '确认',
     cancel: '取消',
-    operation: '操作'
+    operation: '操作',
   },
   upload: {
     clickToUpload: '点击上传',
